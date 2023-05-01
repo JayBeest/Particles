@@ -160,9 +160,14 @@ for (int i = 0; i < num_particles; i++)
 		apply_damping_force(&particles[i], AIR_RESISTANCE);
     }
 }
-	for (int i = 0; i < num_particles; i++) {
-		particles[i].x += particles[i].vx * dt;
-		particles[i].y += particles[i].vy * dt;
+	for (int i = 0; i < num_particles; i++)
+	{
+		float x_inc = particles[i].vx * dt;
+		float y_inc = particles[i].vy * dt;
+		if (x_inc < WINDOW_WIDTH)
+			particles[i].x += x_inc;
+		if (y_inc < WINDOW_HEIGHT)
+			particles[i].y += y_inc;
 
 		if (particles[i].x < 0 || particles[i].x >= WINDOW_WIDTH ) {
 			particles[i].vx = -particles[i].vx * 0.9f;
@@ -264,7 +269,7 @@ int main(int argc, char **argv)
 		glOrtho(0, width/2, 0, height/2, -1, 1);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glfwMakeContextCurrent(window);
+
 		glfwSetWindowSizeCallback(window, window_size_callback);
 
 		update_particles(particles, NUM_PARTICLES, 1.0f / 60.0f, window);

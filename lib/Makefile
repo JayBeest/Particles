@@ -9,7 +9,7 @@ SRCS =	../cimgui/cimgui.cpp \
 		../cimgui/imgui/imgui_demo.cpp \
 		../cimgui/imgui/imgui_tables.cpp \
 		../cimgui/imgui/imgui_widgets.cpp \
-		../cimgui/imgui/backends/imgui_impl_opengl2.cpp \
+		../cimgui/imgui/backends/imgui_impl_opengl3.cpp \
 		../cimgui/imgui/backends/imgui_impl_glfw.cpp
 
 OBJS = $(SRCS:.cpp=.o)
