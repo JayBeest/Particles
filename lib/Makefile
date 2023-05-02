@@ -28,9 +28,9 @@ endif
 
 ifeq ($(UNAME_S), Darwin)
 	NAME		=	libcimgui.dylib
-	INCLUDE	+=	-I/opt/homebrew/include
+	INCLUDE		+=	-I/opt/homebrew/include
 	CXXFLAGS	+=	-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_IMPL_API="extern \"C\" " -DIMGUI_IMPL_OPENGL_LOADER_GL3W -DCIMGUI_USE_WSDL -Dcimgui_EXPORTS
-	LDFLAGS		=	-L/opt/homebrew/lib -dynamiclib -framework OpenGL
+	LDFLAGS		=	-lglfw -dynamiclib -framework OpenGL -L/opt/homebrew/lib
 endif
 
 ifeq ("$(VERBOSE)","1")
@@ -44,7 +44,6 @@ endif
 all: $(NAME)
 
 .cpp.o:
-	$(VECHO)
 	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
 	$(Q)$(CXX) -c $(CXXFLAGS) $(INCLUDE) -o $@ $< 
 
