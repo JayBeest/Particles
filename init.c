@@ -1,10 +1,9 @@
-# define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+# define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 #include "cimgui.h"
 #include "cimgui_impl.h"
 
@@ -17,7 +16,7 @@ void	init_settings(t_paSettings *settings)
 	settings->mouse_toggle = true;
 	settings->grav_toggle = true;
 
-	settings->showDemoWindow = true;
+	settings->showDemoWindow = false;
 	settings->showAnotherWindow = false;
 
 	settings->cur_max_particles = 3500;
@@ -77,11 +76,11 @@ void	init_glfw(t_paSettings *settings, t_glfw_cimgui * glfw_cimgui)
 	// Make the window's context current
 	glfwMakeContextCurrent(glfw_cimgui->window);
 	glfwSwapInterval(1);
-//	glfwSetWindowSizeCallback(glfw_cimgui->window, window_size_callback); ////<<<<----!!!
+	glfwSetWindowSizeCallback(glfw_cimgui->window, window_size_callback);
 	glfwSetInputMode(glfw_cimgui->window, GLFW_STICKY_KEYS, GLFW_TRUE);
 
 
-//	glfwSetKeyCallback(glfw_cimgui->window, key_callback); <<<=====!!!
+	glfwSetKeyCallback(glfw_cimgui->window, key_callback);
 
 }
 
@@ -101,15 +100,15 @@ void	init_cimgui(t_glfw_cimgui * glfw_cimgui)
 
 	ImGui_ImplGlfw_InitForOpenGL(glfw_cimgui->window, true);
 
-	#if __APPLE__
-		// GL 3.2 Core + GLSL 150
-		const char *glsl_version = "#version 330";
-	#else
-		// GL 3.2 + GLSL 130
-			const char *glsl_version = "#version 130";
-	#endif
+//	#if __APPLE__
+//		// GL 3.2 Core + GLSL 150
+//		const char *glsl_version = "#version 330";
+//	#else
+//		// GL 3.2 + GLSL 130
+//			const char *glsl_version = "#version 330";
+//	#endif
 
-	ImGui_ImplOpenGL3_Init(glsl_version);
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	igStyleColorsDark(NULL);
 	// ImFontAtlas_AddFontDefault(io.Fonts, NULL);

@@ -1,6 +1,6 @@
-#ifndef PARTICLE_SHADERS_H
-# define PARTICLE_SHADERS_H
+#ifndef SHADERS_H
+# define SHADERS_H
 
-void	init_shaders(t_shaders *shaders);
+//void	init_shaders(t_shaders *shaders);
 
 #endif

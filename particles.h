@@ -1,12 +1,14 @@
-#ifndef PARTICLE_PARTICLES_H
-# define PARTICLE_PARTICLES_H
+#ifndef PARTICLES_H
+# define PARTICLES_H
 
-# define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 
 # define MAX_PARTICLES 50000
 # define GRAV_MAX_PARTICLES 3500
 
+# include <GLFW/glfw3.h>
 # include <stdbool.h>
+
+# define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
 # include <cimgui.h>
 
 typedef struct s_paColor
@@ -51,6 +53,9 @@ typedef struct s_paSettings
 
 	int			window_width;
 	int			window_height;
+
+	int			mouse_x;
+	int			mouse_y;
 }			t_paSettings;
 
 typedef struct s_glfw_cimgui
@@ -60,19 +65,24 @@ typedef struct s_glfw_cimgui
 
 }			t_glfw_cimgui;
 
-typedef struct s_shaders
-{
-	GLuint	vertexShader;
-	GLuint	fragmentShader;
-	GLuint	shaderProgram;
+//typedef struct s_shaders
+//{
+//	GLuint	vertexShader;
+//	GLuint	fragmentShader;
+//	GLuint	shaderProgram;
+//
+////	GLfloat	vertices[8];
+//	GLuint	vbo;
+//	GLuint	vao;
+////	GLint	posAttrib;
+////	GLuint	elements[6];
+//	GLuint	ebo;
+//
+//}			t_shaders;
 
-//	GLfloat	vertices[8];
-	GLuint	vbo;
-	GLuint	vao;
-//	GLint	posAttrib;
-//	GLuint	elements[6];
-	GLuint	ebo;
+void	window_size_callback(GLFWwindow* window, int width, int height);
+void	key_callback(GLFWwindow* window, int key, int scancode, \
+		int action, int mods);
 
-}			t_shaders;
 
 #endif

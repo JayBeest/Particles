@@ -2,3 +2,4 @@
 particle
 imgui.ini
 *.dylib
+.idea/
