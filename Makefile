@@ -19,7 +19,7 @@ OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.c=%.o))
 CFLAGS		=	-DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O2 #-fsanitize=address
 INCLUDE		=	-Iinclude -Icimgui -Icimgui/imgui -Icimgui/generator/output/
 
-LDFLAGS		=	-DIMGUI_IMPL_API="extern \"C\"" -O2 #-fsanitize=address
+LDFLAGS		=	-DIMGUI_IMPL_API="extern \"C\"" -O2 
 
 
 UNAME		=	$(shell uname)
@@ -28,14 +28,14 @@ UNAME_P		=	$(shell uname -p)
 ifeq ($(UNAME), Linux)
 	LIBS		=	-lGLEW -lGL -lglfw -lcimgui -ldl -lm -pthread 
 	INCLUDE		+=	-I/usr/include
-	LDFLAGS		+=	-L/usr/lib -Llib #-Wl,-rpath,lib
+	LDFLAGS		+=	-L/usr/lib -Llib -Wl,-rpath,lib #-fsanitize=address
 else
 	ifeq ($(UNAME_P), i386)
-	LIBS		= # codam
+	LIBS		=	
 	else
 	LIBS		=	-lglew -lglfw -lcimgui -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
 	INCLUDE		+=	-I/opt/homebrew/include -Iinclude
-	LDFLAGS		+=	-L/opt/homebrew/lib -Llib #-Wl,-rpath,@executable_path/lib
+	LDFLAGS		+=	-L/opt/homebrew/lib -Llib -Wl,-rpath,@executable_path/lib #-fsanitize=address
 	endif
 endif
 
