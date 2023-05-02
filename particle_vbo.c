@@ -12,6 +12,7 @@
 #define GRAV_MAX_PARTICLES 3500
 int CUR_MAX_PARTICLES = 3500;
 int NUM_PARTICLES = 512;
+float P_SIZE = 2;
 
 float AIR_RESISTANCE = 0.99975f;
 int GRAVITATIONAL_CONSTANT = 32;
@@ -21,6 +22,8 @@ float WALL_BOUNCE = 0.9f;
 
 int WINDOW_WIDTH = 512;
 int WINDOW_HEIGHT = 512;
+
+bool mouse_toggle = true;
 bool grav_toggle = true;
 
 typedef struct {
@@ -84,7 +87,7 @@ void drawRectangle(GLuint shaderProgram, GLfloat posX, GLfloat posY, GLfloat wid
 // Particle *particles = NULL;
 Particle *particles;
 
-void render_particles(GLuint shaderProgram, Particle particles[], int num_particles, int size)
+void render_particles(GLuint shaderProgram, Particle particles[], int num_particles, float size)
 {
 	for (int i = 0; i < num_particles; i++)
 	{
@@ -147,6 +150,14 @@ void calculate_gravitational_force(Particle *p1, Particle *p2, float *fx, float 
 	*fy = force * (dy / distance);
 }
 
+void	update_colors(void)
+{
+	for (int i = 0; i < MAX_PARTICLES; i++)
+	{
+		(particles)[i].color = (paColor){(4 / (particles)[i].mass) + baseColor.x, baseColor.y, baseColor.z, baseColor.w};
+	}
+}
+
 void init_particles()
 {
 	if (!particles)
@@ -161,17 +172,23 @@ void init_particles()
 		// *particles[i].vy = 0.0001;//(rand() % 200) / 100.0f - 1.0f;
 		(particles)[i].mass = (rand() % 200) / 10.0f + 3.0f;
 		(particles)[i].color = (paColor){(4 / (particles)[i].mass) + baseColor.x, baseColor.y, baseColor.z, baseColor.w};
+
 	}
 }
 
 void update_particles(Particle particles[], int num_particles, double deltaTime, GLFWwindow *window)
 {
-// float center_x = WINDOW_WIDTH / 2.0f;
-// float center_y = WINDOW_HEIGHT / 2.0f;
 double mouse_x, mouse_y;
 glfwGetCursorPos(window, &mouse_x, &mouse_y);
-float center_x = mouse_x;
-float center_y = WINDOW_HEIGHT - mouse_y;
+static int center_x;
+static int center_y;
+
+if (mouse_toggle)
+{
+	 center_x = mouse_x;
+	 center_y = WINDOW_HEIGHT - mouse_y;
+}
+
 for (int i = 0; i < num_particles; i++)
 {
 	float fx, fy;
@@ -222,6 +239,20 @@ for (int i = 0; i < num_particles; i++)
 		}
 		particles[i].color.g = (sqrtf(particles[i].vy * particles[i].vy + particles[i].vx * particles[i].vx) / 150);
 	}
+}
+
+void	toggle(bool *toggle_switch)
+{
+	if (*toggle_switch == true)
+		*toggle_switch = false;
+	else
+		*toggle_switch = true;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
+        toggle(&mouse_toggle);
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height)
@@ -291,6 +322,8 @@ int main(int argc, char **argv)
     glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 	glfwSetWindowSizeCallback(window, window_size_callback);
+	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+	glfwSetKeyCallback(window, key_callback);
     
 // setup imgui
 	igCreateContext(NULL);
@@ -310,7 +343,7 @@ int main(int argc, char **argv)
 	igStyleColorsDark(NULL);
 	// ImFontAtlas_AddFontDefault(io.Fonts, NULL);
 
-	bool showDemoWindow = false;
+	bool showDemoWindow = true;
 	bool showAnotherWindow = false;
 
 	init_particles();
@@ -394,7 +427,7 @@ int main(int argc, char **argv)
 		double deltaTime = currentTime - lastFrameTime; 
 		lastFrameTime = currentTime;
 		update_particles(particles, NUM_PARTICLES, deltaTime, window);
-		render_particles(shaderProgram, particles, NUM_PARTICLES, 2);
+		render_particles(shaderProgram, particles, NUM_PARTICLES, P_SIZE);
 
 		// start imgui frame
 		ImGui_ImplOpenGL3_NewFrame();
@@ -419,10 +452,25 @@ int main(int argc, char **argv)
 			igSliderInt("CentriForce", &CENTRI_MULTI, -250000, 250000, "%.d", 0);
 			igSliderInt("GravForce", &GRAVITATIONAL_CONSTANT, 1, 1000, "%.d", 0);
 			igSliderFloat("WallBounce", &WALL_BOUNCE, 0.0f, 2.0f, "%.2f", 0);
-			igSliderFloat("AirRez", &AIR_RESISTANCE, 1.0f, 0.1f, "%.5f", 0);
-			igSliderInt("ParticleAmount", &NUM_PARTICLES, 1, CUR_MAX_PARTICLES, "%.d", 0);
+			igSliderFloat("AirRez", &AIR_RESISTANCE, 1.0f, 0.5f, "%.5f", 0);
+			igSliderFloat("P-Size", &P_SIZE, 0.5f, 50.0f, "%.5f", 0);
+			igSliderInt("P-Amount", &NUM_PARTICLES, 1, CUR_MAX_PARTICLES, "%.d", 0);
 			igColorEdit4("clear color", (float *)&baseColor, 0);
 
+			static paColor ff;
+				igPushID_Int(1);
+				igVSliderFloat("##v", (ImVec2){18, 120}, &(baseColor.x), 0, 1, "", 0);
+				igPopID();
+				igSameLine(0.0f, -1.0f);
+				igPushID_Int(2);
+				igVSliderFloat("##v", (ImVec2){18, 120}, &(baseColor.y), 0, 1, "", 0);
+				igPopID();
+				igSameLine(0.0f, -1.0f);
+				igPushID_Int(3);
+				igVSliderFloat("##v", (ImVec2){18, 120}, &(baseColor.z), 0, 1, "", 0);
+				igPopID();
+				igSameLine(0.0f, -1.0f);
+			
 			ImVec2 buttonSize;
 			buttonSize.x = 0;
 			buttonSize.y = 0;
@@ -431,9 +479,23 @@ int main(int argc, char **argv)
 			// igSameLine(0.0f, -1.0f);
 			// igText("counter = %d", counter);
 
-			igText("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / igGetIO()->Framerate, igGetIO()->Framerate);
+			// igText("Application %.3f ms/frame (%.1f FPS)", 1000.0f / igGetIO()->Framerate, igGetIO()->Framerate);
 			igEnd();
 		}
+
+		static ImVec4 old_color; 
+		if (old_color.x == 0)
+		{
+			old_color.x = baseColor.x;
+			old_color.y = baseColor.y;
+			old_color.z = baseColor.z;
+		}
+		if (baseColor.x != old_color.x || old_color.y != old_color.y || old_color.z != old_color.z)
+		{
+			old_color = (ImVec4)baseColor;
+			update_colors();
+		}
+
 
 		if (grav_toggle)
 		{
@@ -459,6 +521,9 @@ int main(int argc, char **argv)
 			}
 		igEnd();
 		}
+		char title[128];
+		snprintf(title, 100, "Particles  -  %-3.fms/frame (%-3.f FPS)", 1000.0f / igGetIO()->Framerate, igGetIO()->Framerate);
+		glfwSetWindowTitle(window, title);
 
 		// render
 		
