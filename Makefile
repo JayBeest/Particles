@@ -1,10 +1,10 @@
-TARGET = particle
+TARGET = particles
 CC = gcc
 CXX = g++
-CFLAGS = -DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O3 #-fsanitize=address
+CFLAGS = -DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O2 #-fsanitize=address
 INCLUDES = -I/opt/homebrew/include -Icimgui -Icimgui/generator/output/
 CXXFLAGS = -std=c++11 -I cimgui/imgui
-LDFLAGS = -L. -lcimgui -L/opt/homebrew/lib -lglfw -lglew -O3#-fsanitize=address
+LDFLAGS = -L. -lcimgui -L/opt/homebrew/lib -lglfw -lglew -O2#-fsanitize=address
 LIBS = -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
 IMPLFLAGS = -DIMGUI_IMPL_API="extern \"C\""
 
