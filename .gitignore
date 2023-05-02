@@ -1,5 +1,5 @@
 *.o
-particle
+particles
 imgui.ini
 *.dylib
 .idea/
