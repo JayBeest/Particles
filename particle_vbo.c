@@ -266,26 +266,6 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 		init_particles();
 }
 
-void checkShaderCompilation(GLuint shader) {
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        GLchar infoLog[512];
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        fprintf(stderr, "Shader compilation failed: %s\n", infoLog);
-    }
-}
-
-void checkProgramLinking(GLuint program) {
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        GLchar infoLog[512];
-        glGetProgramInfoLog(program, 512, NULL, infoLog);
-        fprintf(stderr, "Shader program linking failed: %s\n", infoLog);
-    }
-}
-
 int main(int argc, char **argv)
 {
 	(void)argc;

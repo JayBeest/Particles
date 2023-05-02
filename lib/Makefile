@@ -1,6 +1,3 @@
-#
-# Cross Platform Makefile
-# Compatible with Ubuntu 14.04.1 and macOS
 CXX = g++
 
 SRCS =	../cimgui/cimgui.cpp \
@@ -21,7 +18,7 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "Linux"
 
-	OUTPUTNAME = libcimgui.so
+	NAME = libcimgui.so
 	CXXFLAGS += -I../cimgui/imgui/
 	CXXFLAGS += -Wall
 	CXXFLAGS += -shared -fPIC
@@ -31,7 +28,7 @@ endif
 ifeq ($(UNAME_S), Darwin) #APPLE
 	ECHO_MESSAGE = "macOS"
 
-	OUTPUTNAME = libcimgui.dylib
+	NAME = libcimgui.dylib
 	CXXFLAGS += -I/opt/homebrew/include -I../cimgui/imgui -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_WSDL -DIMGUI_IMPL_API="extern \"C\""
 	CXXFLAGS += -Wall
 	LINKFLAGS = -L/opt/homebrew/lib -lglfw -dynamiclib -framework OpenGL
@@ -41,7 +38,7 @@ endif
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "Windows"
 
-	OUTPUTNAME = libcimgui.dll
+	NAME = libcimgui.dll
 	CXXFLAGS += -I../cimgui/imgui/
 	CXXFLAGS += -Wall
 	CXXFLAGS += -shared
@@ -49,16 +46,29 @@ ifeq ($(OS), Windows_NT)
 	CFLAGS = $(CXXFLAGS)
 endif
 
-.cpp.o:
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+ifeq ("$(VERBOSE)","1")
+Q :=
+VECHO = @echo
+else
+Q := @
+VECHO = @echo
+endif
 
-all:imgui_example
+
+.cpp.o:
+	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
+	$(Q)$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+all: $(NAME)
+	$(Q)cp ./libcimgui.dylib ../
 	@echo Build complete for $(ECHO_MESSAGE)
 
-imgui_example:$(OBJS)
-	$(CXX) -o $(OUTPUTNAME) $(OBJS) $(CXXFLAGS) $(LINKFLAGS)
+$(NAME): $(OBJS)
+	$(Q)$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJS) -o $@
 
 clean:
-	rm $(OBJS)
+	$(VECHO) "\033[31mRemoving CimGui object files\033[0m"
+	$(VECHO)
+	$(Q)rm $(OBJS) $(NAME)
 
 re: clean all
