@@ -2,9 +2,7 @@ NAME		=	PartICLES
 
 SRC_DIR		=	src/
 OBJ_DIR		=	obj/
-BIN_DIR		=	bin/
 HEADER_DIR	=	include/
-BIN			=	$(BIN_DIR)$(NAME)
 
 SRC		=		particles.c \
 				init.c \
@@ -19,7 +17,7 @@ HEADERS		=	$(addprefix $(HEADER_DIR), $(SRC:%.c=%.h))
 OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.c=%.o))
 
 CFLAGS		=	-DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O2 #-fsanitize=address
-INCLUDES	=	-Icimgui -Icimgui/imgui -Icimgui/generator/output/
+INCLUDE		=	-Iinclude -Icimgui -Icimgui/imgui -Icimgui/generator/output/
 
 LDFLAGS		=	-DIMGUI_IMPL_API="extern \"C\""
 
@@ -29,14 +27,14 @@ UNAME_P		=	$(shell uname -p)
 
 ifeq ($(UNAME), Linux)
 	LIBS		=	-lGLEW -lGL -lglfw -lcimgui -ldl -lm -pthread 
-	INCLUDES	+=	-I/usr/include
-	LDFLAGS		=	-L/usr/lib -Llib -Wl,-rpath,../lib # -O2 -fsanitize=address
+	INCLUDE		+=	-I/usr/include
+	LDFLAGS		=	-L/usr/lib -Llib -Wl,-rpath,lib # -O2 -fsanitize=address
 else
 	ifeq ($(UNAME_P), i386)
 	LIBS		= # codam
 	else
 	LIBS		=	-lglew -lglfw -lcimgui -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-	INCLUDES	+=	-I/opt/homebrew/include -Iinclude
+	INCLUDE		+=	-I/opt/homebrew/include -Iinclude
 	LDFLAGS		+=	-L/opt/homebrew/lib -Llib # -O2 -fsanitize=address
 	endif
 endif
@@ -55,10 +53,10 @@ test:
 	echo $(OBJ)
 
 
-all: $(BIN)
+all: $(NAME)
 
-$(BIN): $(OBJ)
-	echo $(OBJ)
+$(NAME): $(OBJ)
+	$(Q)mkdir -p $(@D)
 	$(VECHO)
 	$(VECHO) "\033[35mBuilding CuimGui lib\033[0m"
 	$(Q)make -C lib
@@ -71,15 +69,19 @@ $(BIN): $(OBJ)
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(HEADERS)
 	$(Q)mkdir -p $(@D)
 	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
-	$(Q)$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+	$(Q)$(CC) -c $< $(CFLAGS) $(INCLUDE) -o $@
 
 clean:
 	$(VECHO) "\033[31mRemoving Particles object files\033[0m"
 	$(VECHO)
-	$(Q)rm -rf obj
-	$(Q)rm $(TARGET)
+	$(Q)rm -rf $(OBJ_DIR)
 
-re: clean all
+fclean: clean
+	$(VECHO) "\033[31mRemoving binary\033[0m"
+	$(VECHO)
+	$(Q)rm -f $(NAME)
+
+re: fclean all
 	$(VECHO) "\033[31mRemoving object files\033[0m"
 	$(VECHO)
 
