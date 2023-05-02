@@ -3,3 +3,4 @@ particles
 imgui.ini
 *.dylib
 .idea/
+libcimgui.so

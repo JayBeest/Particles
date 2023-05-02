@@ -1,4 +1,4 @@
-CXX = g++
+CXX = c++
 
 SRCS =	../cimgui/cimgui.cpp \
 		../cimgui/imgui/imgui.cpp \
@@ -9,41 +9,28 @@ SRCS =	../cimgui/cimgui.cpp \
 		../cimgui/imgui/backends/imgui_impl_opengl3.cpp \
 		../cimgui/imgui/backends/imgui_impl_glfw.cpp
 
+
 OBJS = $(SRCS:.cpp=.o)
 
-CXXFLAGS=-std=c++11 -O2
+INCLUDE		=	-I../cimgui/imgui -I../cimgui -I../cimgui/generator/output
+CXXFLAGS	=	-std=c++11 -O2 -Wall -Wextra -Werror #-g -fsanitize=address
+LDFLAGS		=	
 
 UNAME_S := $(shell uname -s)
 
-ifeq ($(UNAME_S), Linux) #LINUX
-	ECHO_MESSAGE = "Linux"
-
-	NAME = libcimgui.so
-	CXXFLAGS += -I../cimgui/imgui/
-	CXXFLAGS += -Wall
-	CXXFLAGS += -shared -fPIC
-	CFLAGS = $(CXXFLAGS)
+ifeq ($(UNAME_S), Linux)
+	NAME		=	libcimgui.so
+	INCLUDE	+=	-I/usr/include
+	CXXFLAGS	+=	-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_IMPL_API="extern \"C\" " -DIMGUI_IMPL_OPENGL_LOADER_GL3W -DCIMGUI_USE_WSDL -Dcimgui_EXPORTS -fPIC
+	LDFLAGS		=	-lGL -lglfw3 -lrt -lm -lX11 -lpthread
+	LINK_PREF	=	-fPIC -shared
 endif
 
-ifeq ($(UNAME_S), Darwin) #APPLE
-	ECHO_MESSAGE = "macOS"
-
-	NAME = libcimgui.dylib
-	CXXFLAGS += -I/opt/homebrew/include -I../cimgui/imgui -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_WSDL -DIMGUI_IMPL_API="extern \"C\""
-	CXXFLAGS += -Wall
-	LINKFLAGS = -L/opt/homebrew/lib -lglfw -dynamiclib -framework OpenGL
-	CFLAGS = $(CXXFLAGS)
-endif
-
-ifeq ($(OS), Windows_NT)
-	ECHO_MESSAGE = "Windows"
-
-	NAME = libcimgui.dll
-	CXXFLAGS += -I../cimgui/imgui/
-	CXXFLAGS += -Wall
-	CXXFLAGS += -shared
-	LINKFLAGS = -limm32
-	CFLAGS = $(CXXFLAGS)
+ifeq ($(UNAME_S), Darwin)
+	NAME		=	libcimgui.dylib
+	INCLUDE	+=	-I/opt/homebrew/include
+	CXXFLAGS	+=	-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_IMPL_API="extern \"C\" " -DIMGUI_IMPL_OPENGL_LOADER_GL3W -DCIMGUI_USE_WSDL -Dcimgui_EXPORTS
+	LDFLAGS		=	-L/opt/homebrew/lib -dynamiclib -framework OpenGL
 endif
 
 ifeq ("$(VERBOSE)","1")
@@ -54,20 +41,20 @@ Q := @
 VECHO = @echo
 endif
 
+all: $(NAME)
 
 .cpp.o:
+	$(VECHO)
 	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
-	$(Q)$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-all: $(NAME)
-	$(Q)cp ./libcimgui.dylib ../
-	@echo Build complete for $(ECHO_MESSAGE)
+	$(Q)$(CXX) -c $(CXXFLAGS) $(INCLUDE) -o $@ $< 
 
 $(NAME): $(OBJS)
-	$(Q)$(CXX) $(CXXFLAGS) $(LINKFLAGS) $(OBJS) -o $@
+	$(VECHO) "\033[36mLinking cimgui dynlib file:     \033[0m$@ 🚨"
+	$(VECHO)
+	$(Q)$(CXX) $(LINK_PREF) -o $@ $(LDFLAGS) $(OBJS) 
 
 clean:
-	$(VECHO) "\033[31mRemoving CimGui object files\033[0m"
+	$(VECHO) "\033[31mRemoving cimgui object files\033[0m"
 	$(VECHO)
 	$(Q)rm $(OBJS) $(NAME)
 
