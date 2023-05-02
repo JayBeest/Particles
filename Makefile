@@ -1,23 +1,28 @@
-TARGET = particles
-CC = gcc
-CXX = c++
-CFLAGS = -DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O2 #-fsanitize=address
-INCLUDES =  -Icimgui -Icimgui/generator/output/
-CXXFLAGS = -std=c++11 -I cimgui/imgui
+NAME		=	PartICLES
 
-IMPLFLAGS = -DIMGUI_IMPL_API="extern \"C\""
+SRC_DIR		=	src/
+OBJ_DIR		=	obj/
+BIN_DIR		=	bin/
+HEADER_DIR	=	include/
+BIN			=	$(BIN_DIR)$(NAME)
 
-SRCS =	particles.c \
-		init.c \
-		render.c \
-		forces.c \
-		update.c \
-		gui.c \
-		colors.c
-#		shaders.c
+SRC		=		particles.c \
+				init.c \
+				render.c \
+				forces.c \
+				update.c \
+				gui.c \
+				colors.c \
 
-OBJS = $(SRCS:.c=.o)
-IMPLOBJS = $(IMPLSRC:.cpp=.o)
+HEADERS		=	$(addprefix $(HEADER_DIR), $(SRC:%.c=%.h))
+
+OBJ 		=	$(addprefix $(OBJ_DIR), $(SRC:%.c=%.o))
+
+CFLAGS		=	-DGL_SILENCE_DEPRECATION -DCIMGUI_USE_OPENGL3 -DCIMGUI_USE_GLFW -O2 #-fsanitize=address
+INCLUDES	=	-Icimgui -Icimgui/imgui -Icimgui/generator/output/
+
+LDFLAGS		=	-DIMGUI_IMPL_API="extern \"C\""
+
 
 UNAME		=	$(shell uname)
 UNAME_P		=	$(shell uname -p)
@@ -25,17 +30,16 @@ UNAME_P		=	$(shell uname -p)
 ifeq ($(UNAME), Linux)
 	LIBS		=	-lGLEW -lGL -lglfw -lcimgui -ldl -lm -pthread 
 	INCLUDES	+=	-I/usr/include
-	LDFLAGS		=	-L/usr/lib -Llib -Wl,-rpath,lib # -O2 -fsanitize=address
+	LDFLAGS		=	-L/usr/lib -Llib -Wl,-rpath,../lib # -O2 -fsanitize=address
 else
 	ifeq ($(UNAME_P), i386)
-		LIBS		=	
+	LIBS		= # codam
 	else
-		LIBS		=	-lglew -lglfw -lcimgui -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
-		INCLUDES	+=	-I/opt/homebrew/include
-		LDFLAGS		+=	-L/opt/homebrew/lib -L. # -O2 -fsanitize=address
+	LIBS		=	-lglew -lglfw -lcimgui -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+	INCLUDES	+=	-I/opt/homebrew/include -Iinclude
+	LDFLAGS		+=	-L/opt/homebrew/lib -Llib # -O2 -fsanitize=address
 	endif
 endif
-
 
 
 ifeq ("$(VERBOSE)","1")
@@ -46,11 +50,15 @@ Q := @
 VECHO = @echo
 endif
 
+test:
+	echo $(HEADERS)
+	echo $(OBJ)
 
 
-all: $(TARGET)
+all: $(BIN)
 
-$(TARGET): $(IMPLOBJS) $(OBJS)
+$(BIN): $(OBJ)
+	echo $(OBJ)
 	$(VECHO)
 	$(VECHO) "\033[35mBuilding CuimGui lib\033[0m"
 	$(Q)make -C lib
@@ -60,14 +68,16 @@ $(TARGET): $(IMPLOBJS) $(OBJS)
 	$(VECHO)
 	$(Q)$(CC) $^ $(LDFLAGS) $(LIBS) -o $@
 
-%.o: %.c
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(HEADERS)
+	$(Q)mkdir -p $(@D)
 	$(VECHO) "\033[34mCompiling object file:   \033[0m$@"
 	$(Q)$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 clean:
 	$(VECHO) "\033[31mRemoving Particles object files\033[0m"
 	$(VECHO)
-	$(Q)rm -f $(OBJS) $(IMPLOBJS) $(TARGET)
+	$(Q)rm -rf obj
+	$(Q)rm $(TARGET)
 
 re: clean all
 	$(VECHO) "\033[31mRemoving object files\033[0m"
@@ -75,3 +85,4 @@ re: clean all
 
 .DEFAULT_GOAL := all
 .PHONY: all clean re
+

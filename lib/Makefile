@@ -1,4 +1,4 @@
-CXX = c++
+CXX = g++
 
 SRCS =	../cimgui/cimgui.cpp \
 		../cimgui/imgui/imgui.cpp \
@@ -9,12 +9,10 @@ SRCS =	../cimgui/cimgui.cpp \
 		../cimgui/imgui/backends/imgui_impl_opengl3.cpp \
 		../cimgui/imgui/backends/imgui_impl_glfw.cpp
 
-
 OBJS = $(SRCS:.cpp=.o)
 
 INCLUDE		=	-I../cimgui/imgui -I../cimgui -I../cimgui/generator/output
 CXXFLAGS	=	-std=c++11 -O2 -Wall -Wextra -Werror #-g -fsanitize=address
-LDFLAGS		=	
 
 UNAME_S := $(shell uname -s)
 
